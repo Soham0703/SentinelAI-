@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentinelAI – Financial Fraud Detection & Risk Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#10b981',
+              600: '#059669',
+            },
+            dark: {
+              900: '#0B0F17',
+              850: '#111827',
+              800: '#1F2937',
+              700: '#374151'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0B0F17;
+      color: #F3F4F6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(55, 65, 81, 0.5);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 8px 32px -8px rgba(16, 185, 129, 0.15);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B0F17; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <header class="sticky top-0 z-50 border-b border-gray-800 bg-[#0B0F17]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i data-lucide="shield-alert" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-bold tracking-tight text-white">Sentinel<span class="text-emerald-400">AI</span></span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800">Risk Core v1.0</span>
+          </div>
+          <p class="text-xs text-gray-400 hidden sm:block">Financial Fraud & Anomaly Intelligence</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-1 sm:space-x-2">
+        <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-button px-3 py-1.5 rounded-lg text-sm font-medium transition text-emerald-400 bg-gray-800">
+          <span class="flex items-center space-x-1.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="hidden md:inline">Overview</span></span>
+        </button>
+        <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="tab-button px-3 py-1.5 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <span class="flex items-center space-x-1.5"><i data-lucide="zap" class="w-4 h-4"></i><span class="hidden md:inline">Live Simulator</span></span>
+        </button>
+        <button onclick="switchTab('ledger')" id="tab-btn-ledger" class="tab-button px-3 py-1.5 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <span class="flex items-center space-x-1.5"><i data-lucide="receipt-text" class="w-4 h-4"></i><span class="hidden md:inline">Ledger</span></span>
+        </button>
+        <button onclick="switchTab('network')" id="tab-btn-network" class="tab-button px-3 py-1.5 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <span class="flex items-center space-x-1.5"><i data-lucide="share-2" class="w-4 h-4"></i><span class="hidden md:inline">Mule Network</span></span>
+        </button>
+        <button onclick="switchTab('models')" id="tab-btn-models" class="tab-button px-3 py-1.5 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <span class="flex items-center space-x-1.5"><i data-lucide="cpu" class="w-4 h-4"></i><span class="hidden md:inline">Models & XAI</span></span>
+        </button>
+        <button onclick="switchTab('batch')" id="tab-btn-batch" class="tab-button px-3 py-1.5 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <span class="flex items-center space-x-1.5"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i><span class="hidden md:inline">Batch Studio</span></span>
+        </button>
+      </div>
+
+      <div class="hidden lg:flex items-center space-x-2 pl-3 border-l border-gray-800">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </span>
+        <span class="text-xs text-gray-300 font-mono">5 Models Active</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <div id="tab-overview" class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card rounded-2xl p-5 border border-gray-800 relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Volume Analyzed</span>
+            <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400"><i data-lucide="activity" class="w-5 h-5"></i></div>
+          </div>
+          <div class="mt-4">
+            <h3 id="kpi-total-volume" class="text-2xl font-bold text-white tracking-tight">$0.00</h3>
+            <p id="kpi-total-count" class="text-xs text-gray-400 mt-1">0 transactions audited</p>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 border border-gray-800 relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Prevented Loss Exposure</span>
+            <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+          </div>
+          <div class="mt-4">
+            <h3 id="kpi-prevented-loss" class="text-2xl font-bold text-emerald-400 tracking-tight">$0.00</h3>
+            <p class="text-xs text-gray-400 mt-1">Intercepted illicit capital</p>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 border border-gray-800 relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Flagged Fraud Infiltration</span>
+            <div class="p-2 rounded-lg bg-rose-500/10 text-rose-400"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+          </div>
+          <div class="mt-4">
+            <h3 id="kpi-fraud-count" class="text-2xl font-bold text-rose-400 tracking-tight">0</h3>
+            <p id="kpi-fraud-rate" class="text-xs text-rose-300/80 mt-1">0.00% anomaly detection rate</p>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 border border-gray-800 relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ensemble Confidence</span>
+            <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+          </div>
+          <div class="mt-4">
+            <h3 id="kpi-top-pr-auc" class="text-2xl font-bold text-white tracking-tight">1.000 PR-AUC</h3>
+            <p class="text-xs text-purple-300/80 mt-1">XGBoost & PyTorch GNN Core</p>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="glass-card rounded-2xl p-6 border border-gray-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i>
+              <span>Risk Tier Distribution</span>
+            </h4>
+          </div>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="riskTierChart"></canvas>
+          </div>
+          <div class="grid grid-cols-4 gap-2 mt-4 text-center">
+            <div class="p-2 rounded-lg bg-emerald-950/40 border border-emerald-900/50">
+              <span class="text-[10px] text-gray-400 block">LOW</span>
+              <span id="tier-count-low" class="text-sm font-bold text-emerald-400">0</span>
+            </div>
+            <div class="p-2 rounded-lg bg-amber-950/40 border border-amber-900/50">
+              <span class="text-[10px] text-gray-400 block">MED</span>
+              <span id="tier-count-med" class="text-sm font-bold text-amber-400">0</span>
+            </div>
+            <div class="p-2 rounded-lg bg-orange-950/40 border border-orange-900/50">
+              <span class="text-[10px] text-gray-400 block">HIGH</span>
+              <span id="tier-count-high" class="text-sm font-bold text-orange-400">0</span>
+            </div>
+            <div class="p-2 rounded-lg bg-rose-950/40 border border-rose-900/50">
+              <span class="text-[10px] text-gray-400 block">CRIT</span>
+              <span id="tier-count-crit" class="text-sm font-bold text-rose-400">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 border border-gray-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span>Automated Action Decisions</span>
+            </h4>
+          </div>
+          <div class="space-y-4 pt-2">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-emerald-400 font-medium">APPROVE (Low Friction)</span>
+                <span id="rec-pct-approve" class="text-gray-400">0%</span>
+              </div>
+              <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                <div id="bar-rec-approve" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-amber-400 font-medium">STEP_UP_AUTH (2FA / OTP)</span>
+                <span id="rec-pct-stepup" class="text-gray-400">0%</span>
+              </div>
+              <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                <div id="bar-rec-stepup" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-orange-400 font-medium">MANUAL_REVIEW (Analyst Queue)</span>
+                <span id="rec-pct-review" class="text-gray-400">0%</span>
+              </div>
+              <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                <div id="bar-rec-review" class="bg-orange-500 h-2.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-rose-400 font-medium">DECLINE (Critical Block)</span>
+                <span id="rec-pct-decline" class="text-gray-400">0%</span>
+              </div>
+              <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                <div id="bar-rec-decline" class="bg-rose-500 h-2.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 p-3 rounded-xl bg-gray-850/60 border border-gray-800 text-xs text-gray-400">
+            <div class="flex items-center space-x-2 text-gray-300 font-medium mb-1">
+              <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+              <span>Multi-Layered Enforcement</span>
+            </div>
+            Thresholds: Critical >= 85%, High >= 60%, Medium >= 25%, Low < 25%.
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 border border-gray-800 flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+              <i data-lucide="bell" class="w-4 h-4 text-rose-400"></i>
+              <span>High Risk Interceptions</span>
+            </h4>
+            <span class="text-[10px] text-gray-400">Live Queue</span>
+          </div>
+          <div id="overview-recent-alerts" class="space-y-2.5 overflow-y-auto max-h-72 flex-1 pr-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-simulator" class="hidden space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i data-lucide="zap" class="w-5 h-5 text-emerald-400"></i>
+            <span>Real-Time Transaction Scoring & Explainability Lab</span>
+          </h2>
+          <p class="text-xs text-gray-400">Trigger multi-model inference, inspect SHAP local contributions, and review compliance summaries.</p>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-4 border border-gray-800">
+        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-3">Load Attack & Normal Typology Presets:</span>
+        <div id="presets-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 glass-card rounded-2xl p-6 border border-gray-800 space-y-4">
+          <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2 border-b border-gray-800 pb-3">
+            <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i>
+            <span>Transaction Parameters</span>
+          </h4>
+
+          <form id="simulator-form" onsubmit="handleSimulate(event)" class="space-y-3.5 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-gray-400 mb-1">Type</label>
+                <select id="sim-type" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none">
+                  <option value="TRANSFER">TRANSFER</option>
+                  <option value="CASH_OUT">CASH_OUT</option>
+                  <option value="PAYMENT">PAYMENT</option>
+                  <option value="DEBIT">DEBIT</option>
+                  <option value="CASH_IN">CASH_IN</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-1">Amount ($)</label>
+                <input type="number" step="0.01" id="sim-amount" required value="85000.00" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-gray-400 mb-1">Origin Account</label>
+                <input type="text" id="sim-nameOrig" value="VICTIM_4021" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-1">Destination Counterparty</label>
+                <input type="text" id="sim-nameDest" value="MULE_004" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-gray-400 mb-1">Origin Old Balance ($)</label>
+                <input type="number" step="0.01" id="sim-oldbalanceOrg" value="85000.00" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-1">Origin New Balance ($)</label>
+                <input type="number" step="0.01" id="sim-newbalanceOrig" value="0.00" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-gray-400 mb-1">Dest Old Balance ($)</label>
+                <input type="number" step="0.01" id="sim-oldbalanceDest" value="0.00" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-gray-400 mb-1">Dest New Balance ($)</label>
+                <input type="number" step="0.01" id="sim-newbalanceDest" value="0.00" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-400 mb-1">Time Step (Hour: 1-720)</label>
+              <input type="number" id="sim-step" value="3" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-emerald-500 focus:outline-none" />
+            </div>
+
+            <button type="submit" id="btn-run-simulate" class="w-full mt-4 py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center space-x-2">
+              <i data-lucide="play" class="w-4 h-4"></i>
+              <span>Execute Risk Intelligence Scoring</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="lg:col-span-7 space-y-4">
+          <div id="sim-result-card" class="glass-card rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-800">
+              <div>
+                <span class="text-xs text-gray-400 uppercase tracking-wider block">Composite Risk Index</span>
+                <div class="flex items-baseline space-x-2 mt-1">
+                  <span id="sim-risk-score" class="text-4xl font-black text-rose-400">--</span>
+                  <span id="sim-risk-tier" class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-rose-950/80 text-rose-400 border border-rose-800">PENDING</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-gray-400 uppercase tracking-wider block">Operational Action</span>
+                <span id="sim-recommendation" class="text-lg font-bold text-rose-400">AWAITING INPUT</span>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">Model Decision Breakdown:</span>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+                <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+                  <span class="text-[10px] text-gray-400 block truncate">XGBoost</span>
+                  <span id="score-xgb" class="font-bold text-white">--</span>
+                </div>
+                <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+                  <span class="text-[10px] text-gray-400 block truncate">Random Forest</span>
+                  <span id="score-rf" class="font-bold text-white">--</span>
+                </div>
+                <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+                  <span class="text-[10px] text-gray-400 block truncate">PyTorch GNN</span>
+                  <span id="score-gnn" class="font-bold text-white">--</span>
+                </div>
+                <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+                  <span class="text-[10px] text-gray-400 block truncate">Logistic Reg</span>
+                  <span id="score-lr" class="font-bold text-white">--</span>
+                </div>
+                <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+                  <span class="text-[10px] text-gray-400 block truncate">Iso Forest</span>
+                  <span id="score-iso" class="font-bold text-white">--</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-gray-800">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+                  <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-400"></i>
+                  <span>SHAP Local Feature Attributions</span>
+                </span>
+                <span class="text-[10px] text-gray-400">TreeSHAP exact decomposition</span>
+              </div>
+              <div id="sim-shap-bars" class="space-y-2 text-xs">
+                <p class="text-gray-500 italic py-3 text-center">Run scoring to visualize local SHAP waterfall...</p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-gray-800">
+              <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5 mb-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i>
+                <span>Human-Readable Compliance Narrative</span>
+              </span>
+              <div id="sim-narrative-container" class="space-y-1.5">
+                <p class="text-gray-500 italic py-2 text-center text-xs">Narrative will be synthesized post-inference.</p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-gray-800">
+              <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5 mb-2">
+                <i data-lucide="flag" class="w-4 h-4 text-amber-400"></i>
+                <span>Heuristic Rule Hits</span>
+              </span>
+              <div id="sim-rules-container" class="space-y-1.5"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-ledger" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i data-lucide="receipt-text" class="w-5 h-5 text-emerald-400"></i>
+            <span>Audited Transaction Ledger</span>
+          </h2>
+          <p class="text-xs text-gray-400">Search, filter, and inspect scored financial transfers.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <input type="text" id="ledger-search" placeholder="Search Account / Mule ID..." onkeyup="handleLedgerSearch(event)" class="bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 w-48" />
+          
+          <select id="ledger-filter-tier" onchange="loadLedger(1)" class="bg-gray-900 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none">
+            <option value="">All Tiers</option>
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+            <option value="CRITICAL">CRITICAL</option>
+          </select>
+
+          <select id="ledger-filter-type" onchange="loadLedger(1)" class="bg-gray-900 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none">
+            <option value="">All Types</option>
+            <option value="TRANSFER">TRANSFER</option>
+            <option value="CASH_OUT">CASH_OUT</option>
+            <option value="PAYMENT">PAYMENT</option>
+            <option value="CASH_IN">CASH_IN</option>
+          </select>
+
+          <button onclick="loadLedger(1)" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition" title="Refresh">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl border border-gray-800 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-900/80 text-gray-400 uppercase font-semibold text-[10px] tracking-wider border-b border-gray-800">
+              <tr>
+                <th class="py-3 px-4">TX ID</th>
+                <th class="py-3 px-4">Type</th>
+                <th class="py-3 px-4">Amount</th>
+                <th class="py-3 px-4">Origin Account</th>
+                <th class="py-3 px-4">Destination</th>
+                <th class="py-3 px-4">Risk Score</th>
+                <th class="py-3 px-4">Tier</th>
+                <th class="py-3 px-4">Action</th>
+                <th class="py-3 px-4 text-right">Inspect</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body" class="divide-y divide-gray-800/60 text-gray-300">
+              <tr>
+                <td colspan="9" class="text-center py-8 text-gray-500">Loading audited transactions...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="py-3 px-4 border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
+          <span id="ledger-pagination-info">Showing 0-0 of 0</span>
+          <div class="flex items-center space-x-2">
+            <button id="ledger-prev-btn" onclick="prevLedgerPage()" disabled class="px-3 py-1 rounded bg-gray-800 hover:bg-gray-700 disabled:opacity-40 transition">Previous</button>
+            <button id="ledger-next-btn" onclick="nextLedgerPage()" disabled class="px-3 py-1 rounded bg-gray-800 hover:bg-gray-700 disabled:opacity-40 transition">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-network" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i data-lucide="share-2" class="w-5 h-5 text-emerald-400"></i>
+            <span>Relational Fraud Ring & Money Mule Visualizer</span>
+          </h2>
+          <p class="text-xs text-gray-400">Interactive bipartite transaction graph exposing money mule hubs and circular fund funneling.</p>
+        </div>
+        <div class="flex items-center space-x-2 text-xs">
+          <button onclick="loadNetworkGraph(true)" class="px-3 py-1.5 rounded-lg bg-rose-950/80 border border-rose-800 text-rose-300 hover:bg-rose-900/80 transition">
+            Focus Mule Clusters
+          </button>
+          <button onclick="loadNetworkGraph(false)" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition">
+            Full Subgraph
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-4 border border-gray-800 relative">
+        <div class="absolute top-6 left-6 z-10 p-3 rounded-xl bg-gray-900/90 border border-gray-800 text-[11px] space-y-1.5 backdrop-blur-sm pointer-events-none">
+          <span class="font-bold text-gray-300 block mb-1">Graph Legend</span>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+            <span class="text-gray-300">Mule Hub (Shared Counterparty)</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+            <span class="text-gray-300">Victim / Origin Account</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+            <span class="text-gray-300">Merchant Hub</span>
+          </div>
+          <div class="text-[10px] text-gray-400 pt-1">Drag canvas to pan • Scroll to zoom • Click node to inspect</div>
+        </div>
+
+        <div id="graph-stats-badge" class="absolute top-6 right-6 z-10 p-3 rounded-xl bg-gray-900/90 border border-gray-800 text-[11px] text-right backdrop-blur-sm pointer-events-none">
+          <span class="text-gray-400 block">Active Subgraph Nodes</span>
+          <span id="graph-nodes-stat" class="font-bold text-white text-base">0 Nodes | 0 Edges</span>
+        </div>
+
+        <canvas id="fraudCanvas" class="w-full h-[520px] rounded-xl bg-[#090D14] cursor-grab active:cursor-grabbing"></canvas>
+      </div>
+    </div>
+
+    <div id="tab-models" class="hidden space-y-6">
+      <div>
+        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+          <i data-lucide="cpu" class="w-5 h-5 text-emerald-400"></i>
+          <span>Model Benchmark Leaderboard & Explainability Core</span>
+        </h2>
+        <p class="text-xs text-gray-400">Actual evaluation metrics computed on held-out test split (zero-leakage evaluation protocol).</p>
+      </div>
+
+      <div id="model-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-2xl p-6 border border-gray-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+              <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+              <span>Evaluation Curves Comparison</span>
+            </h4>
+            <div class="flex space-x-1 bg-gray-900 p-1 rounded-lg text-xs">
+              <button onclick="toggleCurveType('pr')" id="btn-curve-pr" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-medium">PR Curve</button>
+              <button onclick="toggleCurveType('roc')" id="btn-curve-roc" class="px-2.5 py-1 rounded text-gray-400 hover:text-white font-medium">ROC Curve</button>
+            </div>
+          </div>
+          <div class="h-64 relative">
+            <canvas id="modelCurvesChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 border border-gray-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+              <i data-lucide="award" class="w-4 h-4 text-purple-400"></i>
+              <span>Global SHAP Feature Importance</span>
+            </h4>
+            <span class="text-[10px] text-gray-400">Mean |SHAP Value|</span>
+          </div>
+          <div class="h-64 relative">
+            <canvas id="featureImportanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-batch" class="hidden space-y-6">
+      <div>
+        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+          <i data-lucide="file-spreadsheet" class="w-5 h-5 text-emerald-400"></i>
+          <span>Batch Transaction Risk Scoring Studio</span>
+        </h2>
+        <p class="text-xs text-gray-400">Score bulk CSV transaction files or generate synthetic batches for stress testing.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-2xl p-6 border border-gray-800 space-y-4">
+          <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+            <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-400"></i>
+            <span>Upload Transaction Batch (CSV)</span>
+          </h4>
+          <div class="border-2 border-dashed border-gray-700 hover:border-emerald-500 rounded-xl p-8 text-center transition cursor-pointer" onclick="document.getElementById('csv-file-input').click()">
+            <i data-lucide="file-up" class="w-10 h-10 text-gray-400 mx-auto mb-2"></i>
+            <span class="text-sm font-semibold text-gray-300 block">Click or Drag & Drop CSV</span>
+            <span class="text-xs text-gray-500 mt-1 block">Expected columns: amount, oldbalanceOrg, newbalanceOrig, nameOrig, nameDest, type</span>
+            <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleCsvUpload(event)" />
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span>Supports standard PaySim/Kaggle schemas</span>
+            <button onclick="downloadSampleCsv()" class="text-emerald-400 hover:underline">Download Template CSV</button>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 border border-gray-800 space-y-4">
+          <h4 class="text-sm font-semibold text-gray-200 flex items-center space-x-2">
+            <i data-lucide="cpu" class="w-4 h-4 text-purple-400"></i>
+            <span>Instant Batch Stress Test Generator</span>
+          </h4>
+          <p class="text-xs text-gray-400">Synthesize a test stream of 50 multi-account transactions containing money mule patterns, smurfing, and legitimate retail payments.</p>
+          <div class="flex space-x-3 pt-2">
+            <button onclick="runSyntheticBatch(25)" class="flex-1 py-2 px-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-medium text-xs transition">
+              Run 25 Transactions
+            </button>
+            <button onclick="runSyntheticBatch(50)" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition shadow-lg shadow-emerald-600/20">
+              Run 50 Transactions
+            </button>
+          </div>
+          <div id="batch-progress-container" class="hidden space-y-2 pt-3">
+            <div class="flex justify-between text-xs text-gray-400">
+              <span id="batch-status-label">Scoring in progress...</span>
+              <span id="batch-status-pct">100%</span>
+            </div>
+            <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+              <div id="batch-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="batch-results-wrapper" class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+            <span>Batch Analysis Summary</span>
+          </h4>
+          <div id="batch-summary-chips" class="flex space-x-2 text-xs"></div>
+        </div>
+        <div class="glass-card rounded-2xl border border-gray-800 overflow-x-auto max-h-96">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-900/90 text-gray-400 uppercase font-semibold text-[10px] tracking-wider sticky top-0">
+              <tr>
+                <th class="py-2.5 px-4">Type</th>
+                <th class="py-2.5 px-4">Amount</th>
+                <th class="py-2.5 px-4">Origin</th>
+                <th class="py-2.5 px-4">Destination</th>
+                <th class="py-2.5 px-4">Risk %</th>
+                <th class="py-2.5 px-4">Tier</th>
+                <th class="py-2.5 px-4">Action</th>
+                <th class="py-2.5 px-4">Top Risk Driver</th>
+              </tr>
+            </thead>
+            <tbody id="batch-table-body" class="divide-y divide-gray-800/60 text-gray-300"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="detail-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-card max-w-2xl w-full rounded-2xl border border-gray-700 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="file-search" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="text-base font-bold text-white">Transaction Forensic Audit #<span id="modal-tx-id"></span></h3>
+        </div>
+        <button onclick="closeModal()" class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-gray-900 border border-gray-800">
+          <span class="text-gray-400 block text-[10px]">Amount</span>
+          <span id="modal-amount" class="text-base font-bold text-white">$0.00</span>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-900 border border-gray-800">
+          <span class="text-gray-400 block text-[10px]">Type</span>
+          <span id="modal-type" class="text-base font-bold text-emerald-400">TRANSFER</span>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-900 border border-gray-800">
+          <span class="text-gray-400 block text-[10px]">Risk Score</span>
+          <span id="modal-risk" class="text-base font-bold text-rose-400">0%</span>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-900 border border-gray-800">
+          <span class="text-gray-400 block text-[10px]">Action</span>
+          <span id="modal-action" class="text-base font-bold text-amber-400">APPROVE</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs p-3 rounded-xl bg-gray-900 border border-gray-800">
+        <div>
+          <span class="text-gray-400 block text-[10px]">Origin Account</span>
+          <span id="modal-orig" class="font-mono text-white font-semibold">C_UNKNOWN</span>
+          <span id="modal-orig-balance" class="block text-[11px] text-gray-400 mt-1">Bal: $0 -> $0</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[10px]">Destination Account</span>
+          <span id="modal-dest" class="font-mono text-white font-semibold">M_UNKNOWN</span>
+          <span id="modal-dest-balance" class="block text-[11px] text-gray-400 mt-1">Bal: $0 -> $0</span>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h5 class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+          <i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i>
+          <span>Compliance Risk Narrative</span>
+        </h5>
+        <div id="modal-narrative" class="space-y-1.5 text-xs"></div>
+      </div>
+
+      <div class="space-y-3">
+        <h5 class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+          <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-400"></i>
+          <span>Local Feature Contributions (SHAP)</span>
+        </h5>
+        <div id="modal-shap-bars" class="space-y-1.5 text-xs"></div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-medium transition">
+          Close Audit Window
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTab = 'overview';
+    let ledgerPage = 1;
+    let riskTierChart = null;
+    let modelCurvesChart = null;
+    let featureImportanceChart = null;
+    let currentCurveType = 'pr';
+    let cachedMetrics = null;
+
+    let graphNodes = [];
+    let graphEdges = [];
+    let isDragging = false;
+    let dragNode = null;
+    let panOffset = { x: 0, y: 0 };
+    let zoomLevel = 1.0;
+    let lastMousePos = { x: 0, y: 0 };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      loadStats();
+      loadPresets();
+      loadMetrics();
+      loadLedger(1);
+      initCanvasEvents();
+    });
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabs = ['overview', 'simulator', 'ledger', 'network', 'models', 'batch'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tab) {
+          el.classList.remove('hidden');
+          btn.classList.add('text-emerald-400', 'bg-gray-800');
+          btn.classList.remove('text-gray-400');
+        } else {
+          el.classList.add('hidden');
+          btn.classList.remove('text-emerald-400', 'bg-gray-800');
+          btn.classList.add('text-gray-400');
+        }
+      });
+      lucide.createIcons();
+
+      if (tab === 'network') {
+        loadNetworkGraph(true);
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/v1/stats');
+        const data = await res.json();
+        
+        document.getElementById('kpi-total-volume').textContent = '$' + Number(data.total_volume_analyzed).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('kpi-total-count').textContent = `${data.total_transactions.toLocaleString()} transactions audited`;
+        document.getElementById('kpi-prevented-loss').textContent = '$' + Number(data.prevented_loss_volume).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('kpi-fraud-count').textContent = data.fraud_detected_count.toLocaleString();
+        document.getElementById('kpi-fraud-rate').textContent = `${data.fraud_rate_pct}% anomaly detection rate`;
+
+        const low = data.risk_distribution.LOW || 0;
+        const med = data.risk_distribution.MEDIUM || 0;
+        const high = data.risk_distribution.HIGH || 0;
+        const crit = data.risk_distribution.CRITICAL || 0;
+
+        document.getElementById('tier-count-low').textContent = low;
+        document.getElementById('tier-count-med').textContent = med;
+        document.getElementById('tier-count-high').textContent = high;
+        document.getElementById('tier-count-crit').textContent = crit;
+
+        const total = data.total_transactions || 1;
+        const app = Math.round(((data.recommendation_distribution.APPROVE || 0) / total) * 100);
+        const step = Math.round(((data.recommendation_distribution.STEP_UP_AUTH || 0) / total) * 100);
+        const rev = Math.round(((data.recommendation_distribution.MANUAL_REVIEW || 0) / total) * 100);
+        const dec = Math.round(((data.recommendation_distribution.DECLINE || 0) / total) * 100);
+
+        document.getElementById('rec-pct-approve').textContent = `${app}%`;
+        document.getElementById('bar-rec-approve').style.width = `${app}%`;
+        document.getElementById('rec-pct-stepup').textContent = `${step}%`;
+        document.getElementById('bar-rec-stepup').style.width = `${step}%`;
+        document.getElementById('rec-pct-review').textContent = `${rev}%`;
+        document.getElementById('bar-rec-review').style.width = `${rev}%`;
+        document.getElementById('rec-pct-decline').textContent = `${dec}%`;
+        document.getElementById('bar-rec-decline').style.width = `${dec}%`;
+
+        renderRiskChart(low, med, high, crit);
+        loadRecentAlerts();
+      } catch (e) {
+        console.error("Error loading stats:", e);
+      }
+    }
+
+    function renderRiskChart(low, med, high, crit) {
+      const ctx = document.getElementById('riskTierChart').getContext('2d');
+      if (riskTierChart) riskTierChart.destroy();
+      riskTierChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+          datasets: [{
+            data: [low, med, high, crit],
+            backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#f43f5e'],
+            borderColor: '#111827',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#9CA3AF', boxWidth: 12, padding: 15, font: { size: 10 } }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    async function loadRecentAlerts() {
+      try {
+        const res = await fetch('/api/v1/transactions?limit=6&is_fraud_only=true');
+        const data = await res.json();
+        const container = document.getElementById('overview-recent-alerts');
+        container.innerHTML = '';
+
+        if (!data.transactions || data.transactions.length === 0) {
+          container.innerHTML = '<p class="text-xs text-gray-500 italic py-4 text-center">No active high-risk alerts.</p>';
+          return;
+        }
+
+        data.transactions.forEach(tx => {
+          const item = document.createElement('div');
+          item.className = 'p-3 rounded-xl bg-gray-900/90 border border-rose-950/60 flex items-center justify-between text-xs cursor-pointer hover:border-rose-500/40 transition';
+          item.onclick = () => inspectTransaction(tx.id);
+          item.innerHTML = `
+            <div>
+              <div class="flex items-center space-x-1.5">
+                <span class="font-bold text-white">$${Number(tx.amount).toLocaleString()}</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-950 text-rose-400 font-bold border border-rose-800">${tx.type}</span>
+              </div>
+              <div class="text-[10px] text-gray-400 font-mono mt-0.5">${tx.nameOrig} -> ${tx.nameDest}</div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-rose-400">${tx.riskScore}%</span>
+              <span class="block text-[10px] text-gray-400">${tx.recommendation}</span>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadPresets() {
+      try {
+        const res = await fetch('/api/v1/presets');
+        const presets = await res.json();
+        const container = document.getElementById('presets-container');
+        container.innerHTML = '';
+
+        presets.forEach((p) => {
+          const btn = document.createElement('div');
+          btn.className = 'p-3 rounded-xl bg-gray-900/80 border border-gray-800 hover:border-emerald-500/50 cursor-pointer transition text-left space-y-1';
+          btn.onclick = () => applyPreset(p.data);
+          btn.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">${p.name}</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded ${p.category === 'BENIGN' ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'} font-bold">${p.category}</span>
+            </div>
+            <p class="text-[10px] text-gray-400 line-clamp-2">${p.description}</p>
+          `;
+          container.appendChild(btn);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function applyPreset(data) {
+      document.getElementById('sim-type').value = data.type;
+      document.getElementById('sim-amount').value = data.amount;
+      document.getElementById('sim-nameOrig').value = data.nameOrig;
+      document.getElementById('sim-nameDest').value = data.nameDest;
+      document.getElementById('sim-oldbalanceOrg').value = data.oldbalanceOrg;
+      document.getElementById('sim-newbalanceOrig').value = data.newbalanceOrig;
+      document.getElementById('sim-oldbalanceDest').value = data.oldbalanceDest;
+      document.getElementById('sim-newbalanceDest').value = data.newbalanceDest;
+      document.getElementById('sim-step').value = data.step;
+      
+      document.getElementById('simulator-form').dispatchEvent(new Event('submit'));
+    }
+
+    async function handleSimulate(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-run-simulate');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Analyzing Models & Network...</span>`;
+      lucide.createIcons();
+
+      const payload = {
+        type: document.getElementById('sim-type').value,
+        amount: parseFloat(document.getElementById('sim-amount').value),
+        nameOrig: document.getElementById('sim-nameOrig').value,
+        nameDest: document.getElementById('sim-nameDest').value,
+        oldbalanceOrg: parseFloat(document.getElementById('sim-oldbalanceOrg').value),
+        newbalanceOrig: parseFloat(document.getElementById('sim-newbalanceOrig').value),
+        oldbalanceDest: parseFloat(document.getElementById('sim-oldbalanceDest').value),
+        newbalanceDest: parseFloat(document.getElementById('sim-newbalanceDest').value),
+        step: parseInt(document.getElementById('sim-step').value)
+      };
+
+      try {
+        const res = await fetch('/api/v1/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        renderSimulationResult(result);
+        loadStats();
+      } catch (err) {
+        alert("Inference Error: " + err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Execute Risk Intelligence Scoring</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    function renderSimulationResult(res) {
+      const scoreEl = document.getElementById('sim-risk-score');
+      const tierEl = document.getElementById('sim-risk-tier');
+      const recEl = document.getElementById('sim-recommendation');
+
+      scoreEl.textContent = `${res.risk_score}%`;
+      tierEl.textContent = res.risk_tier;
+      recEl.textContent = res.recommendation;
+
+      let colorClass = 'text-emerald-400';
+      let bgClass = 'bg-emerald-950/80 text-emerald-400 border-emerald-800';
+      if (res.risk_tier === 'CRITICAL') {
+        colorClass = 'text-rose-400';
+        bgClass = 'bg-rose-950/80 text-rose-400 border-rose-800';
+      } else if (res.risk_tier === 'HIGH') {
+        colorClass = 'text-orange-400';
+        bgClass = 'bg-orange-950/80 text-orange-400 border-orange-800';
+      } else if (res.risk_tier === 'MEDIUM') {
+        colorClass = 'text-amber-400';
+        bgClass = 'bg-amber-950/80 text-amber-400 border-amber-800';
+      }
+
+      scoreEl.className = `text-4xl font-black ${colorClass}`;
+      recEl.className = `text-lg font-bold ${colorClass}`;
+      tierEl.className = `px-2.5 py-0.5 text-xs font-bold rounded-full border ${bgClass}`;
+
+      document.getElementById('score-xgb').textContent = (res.model_breakdown.xgboost_probability * 100).toFixed(1) + '%';
+      document.getElementById('score-rf').textContent = (res.model_breakdown.random_forest_probability * 100).toFixed(1) + '%';
+      document.getElementById('score-gnn').textContent = (res.model_breakdown.pytorch_gnn_probability * 100).toFixed(1) + '%';
+      document.getElementById('score-lr').textContent = (res.model_breakdown.logistic_regression_probability * 100).toFixed(1) + '%';
+      document.getElementById('score-iso').textContent = (res.model_breakdown.isolation_forest_anomaly_score * 100).toFixed(1) + '%';
+
+      const shapContainer = document.getElementById('sim-shap-bars');
+      shapContainer.innerHTML = '';
+      const allShap = [...res.explainability.top_positive_features, ...res.explainability.top_negative_features];
+      if (allShap.length === 0) {
+        shapContainer.innerHTML = '<p class="text-gray-500 italic py-2 text-center">No extreme outlier feature attributions.</p>';
+      } else {
+        const maxVal = Math.max(...allShap.map(s => Math.abs(s.shap_value)), 0.1);
+        allShap.slice(0, 6).forEach(f => {
+          const isPos = f.shap_value > 0;
+          const widthPct = Math.min(100, Math.round((Math.abs(f.shap_value) / maxVal) * 100));
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between text-xs py-0.5';
+          row.innerHTML = `
+            <span class="text-gray-300 font-mono w-44 truncate text-[11px]">${f.feature}</span>
+            <div class="flex-1 mx-3 bg-gray-900 h-2 rounded-full overflow-hidden">
+              <div class="h-2 rounded-full ${isPos ? 'bg-rose-500' : 'bg-emerald-500'}" style="width: ${widthPct}%"></div>
+            </div>
+            <span class="font-mono text-[11px] font-bold ${isPos ? 'text-rose-400' : 'text-emerald-400'} w-16 text-right">
+              ${isPos ? '+' : ''}${f.shap_value}
+            </span>
+          `;
+          shapContainer.appendChild(row);
+        });
+      }
+
+      const narContainer = document.getElementById('sim-narrative-container');
+      narContainer.innerHTML = '';
+      res.explainability.narrative.forEach(item => {
+        const p = document.createElement('div');
+        p.className = 'p-2 rounded-lg bg-gray-900/80 border border-gray-800 text-xs text-gray-300 flex items-start space-x-2';
+        p.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-purple-400 mt-0.5 flex-shrink-0"></i><span>${item}</span>`;
+        narContainer.appendChild(p);
+      });
+
+      const rulesContainer = document.getElementById('sim-rules-container');
+      rulesContainer.innerHTML = '';
+      if (!res.rules_triggered || res.rules_triggered.length === 0) {
+        rulesContainer.innerHTML = '<p class="text-gray-500 text-[11px] italic">No heuristic rules flagged.</p>';
+      } else {
+        res.rules_triggered.forEach(r => {
+          const rEl = document.createElement('div');
+          rEl.className = 'p-2 rounded-lg bg-amber-950/40 border border-amber-900/60 text-xs text-amber-300 flex items-start space-x-2';
+          rEl.innerHTML = `
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-400 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <span class="font-bold block text-[11px]">${r.rule_id} [${r.severity}] (+${Math.round(r.score_impact*100)}% risk)</span>
+              <span class="text-[11px] text-gray-300">${r.description}</span>
+            </div>
+          `;
+          rulesContainer.appendChild(rEl);
+        });
+      }
+      lucide.createIcons();
+    }
+
+    async function loadLedger(page = 1) {
+      ledgerPage = page;
+      const search = document.getElementById('ledger-search').value;
+      const tier = document.getElementById('ledger-filter-tier').value;
+      const type = document.getElementById('ledger-filter-type').value;
+
+      let url = `/api/v1/transactions?page=${page}&limit=15`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      if (tier) url += `&risk_tier=${tier}`;
+      if (type) url += `&tx_type=${type}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        renderLedgerTable(data);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderLedgerTable(data) {
+      const tbody = document.getElementById('ledger-table-body');
+      tbody.innerHTML = '';
+
+      if (!data.transactions || data.transactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No matching transactions found.</td></tr>';
+        document.getElementById('ledger-pagination-info').textContent = 'Showing 0-0 of 0';
+        document.getElementById('ledger-prev-btn').disabled = true;
+        document.getElementById('ledger-next-btn').disabled = true;
+        return;
+      }
+
+      data.transactions.forEach(tx => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-800/40 transition border-b border-gray-800/40';
+
+        let tierColor = 'text-emerald-400 bg-emerald-950/60 border-emerald-800';
+        if (tx.riskTier === 'CRITICAL') tierColor = 'text-rose-400 bg-rose-950/60 border-rose-800';
+        else if (tx.riskTier === 'HIGH') tierColor = 'text-orange-400 bg-orange-950/60 border-orange-800';
+        else if (tx.riskTier === 'MEDIUM') tierColor = 'text-amber-400 bg-amber-950/60 border-amber-800';
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono text-gray-400">#${tx.id}</td>
+          <td class="py-3 px-4 font-bold text-gray-300">${tx.type}</td>
+          <td class="py-3 px-4 font-bold text-white">$${Number(tx.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+          <td class="py-3 px-4 font-mono text-gray-300">${tx.nameOrig}</td>
+          <td class="py-3 px-4 font-mono ${tx.nameDest.includes('MULE') ? 'text-rose-400 font-bold' : 'text-gray-300'}">${tx.nameDest}</td>
+          <td class="py-3 px-4 font-bold ${tx.riskScore >= 60 ? 'text-rose-400' : 'text-emerald-400'}">${tx.riskScore}%</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${tierColor}">${tx.riskTier}</span></td>
+          <td class="py-3 px-4 font-medium text-gray-300">${tx.recommendation}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="inspectTransaction(${tx.id})" class="px-2 py-1 rounded bg-gray-800 hover:bg-emerald-600 hover:text-white text-gray-300 transition text-[11px]">
+              Inspect
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const start = (data.page - 1) * data.limit + 1;
+      const end = Math.min(data.page * data.limit, data.total);
+      document.getElementById('ledger-pagination-info').textContent = `Showing ${start}-${end} of ${data.total}`;
+      document.getElementById('ledger-prev-btn').disabled = (data.page <= 1);
+      document.getElementById('ledger-next-btn').disabled = (end >= data.total);
+    }
+
+    function prevLedgerPage() { if (ledgerPage > 1) loadLedger(ledgerPage - 1); }
+    function nextLedgerPage() { loadLedger(ledgerPage + 1); }
+    function handleLedgerSearch(e) { if (e.key === 'Enter') loadLedger(1); }
+
+    async function inspectTransaction(id) {
+      try {
+        const res = await fetch(`/api/v1/transactions/${id}`);
+        const tx = await res.json();
+        
+        document.getElementById('modal-tx-id').textContent = tx.id;
+        document.getElementById('modal-amount').textContent = `$${Number(tx.amount).toLocaleString()}`;
+        document.getElementById('modal-type').textContent = tx.type;
+        document.getElementById('modal-risk').textContent = `${tx.riskScore}%`;
+        document.getElementById('modal-action').textContent = tx.recommendation;
+
+        document.getElementById('modal-orig').textContent = tx.nameOrig;
+        document.getElementById('modal-orig-balance').textContent = `Bal: $${Number(tx.oldbalanceOrg).toLocaleString()} -> $${Number(tx.newbalanceOrig).toLocaleString()}`;
+        document.getElementById('modal-dest').textContent = tx.nameDest;
+        document.getElementById('modal-dest-balance').textContent = `Bal: $${Number(tx.oldbalanceDest).toLocaleString()} -> $${Number(tx.newbalanceDest).toLocaleString()}`;
+
+        const narContainer = document.getElementById('modal-narrative');
+        narContainer.innerHTML = '';
+        if (tx.narrative && tx.narrative.length > 0) {
+          tx.narrative.forEach(n => {
+            const el = document.createElement('div');
+            el.className = 'p-2 rounded bg-gray-900 border border-gray-800 text-gray-300';
+            el.textContent = n;
+            narContainer.appendChild(el);
+          });
+        } else {
+          narContainer.innerHTML = '<p class="text-gray-500 italic">No adverse narrative generated.</p>';
+        }
+
+        const shapContainer = document.getElementById('modal-shap-bars');
+        shapContainer.innerHTML = '';
+        if (tx.shapValues && tx.shapValues.length > 0) {
+          tx.shapValues.slice(0, 5).forEach(f => {
+            const isPos = f.shap_value > 0;
+            const row = document.createElement('div');
+            row.className = 'flex justify-between items-center text-xs py-1 border-b border-gray-800/40';
+            row.innerHTML = `
+              <span class="font-mono text-gray-300">${f.feature}</span>
+              <span class="font-mono font-bold ${isPos ? 'text-rose-400' : 'text-emerald-400'}">${isPos ? '+' : ''}${f.shap_value}</span>
+            `;
+            shapContainer.appendChild(row);
+          });
+        } else {
+          shapContainer.innerHTML = '<p class="text-gray-500 italic">No feature contribution data recorded.</p>';
+        }
+
+        document.getElementById('detail-modal').classList.remove('hidden');
+        lucide.createIcons();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    async function loadNetworkGraph(muleFocus = true) {
+      try {
+        const res = await fetch(`/api/v1/graph/subgraph?limit=80&mule_focus=${muleFocus}`);
+        const data = await res.json();
+        graphNodes = data.nodes;
+        graphEdges = data.edges;
+
+        document.getElementById('graph-nodes-stat').textContent = `${data.stats.node_count} Nodes | ${data.stats.edge_count} Edges (${data.stats.identified_mules} Mules)`;
+
+        layoutGraphNodes();
+        renderCanvasGraph();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function layoutGraphNodes() {
+      const canvas = document.getElementById('fraudCanvas');
+      const width = canvas.clientWidth || 900;
+      const height = canvas.clientHeight || 520;
+      canvas.width = width;
+      canvas.height = height;
+
+      const mules = graphNodes.filter(n => n.type === 'DEST_MULE');
+      const merchants = graphNodes.filter(n => n.type === 'DEST_MERCHANT');
+      const origins = graphNodes.filter(n => n.type === 'ORIGIN' || n.type === 'DEST_ACCOUNT');
+
+      mules.forEach((n, idx) => {
+        const angle = (idx / (mules.length || 1)) * 2 * Math.PI;
+        const r = 80 + (idx % 2) * 40;
+        n.x = width / 2 + Math.cos(angle) * r;
+        n.y = height / 2 + Math.sin(angle) * r;
+        n.radius = 12 + Math.min(10, n.degree * 2);
+      });
+
+      merchants.forEach((n, idx) => {
+        n.x = width * 0.85 + (Math.random() - 0.5) * 60;
+        n.y = 80 + (idx * 55) % (height - 120);
+        n.radius = 10 + Math.min(8, n.degree);
+      });
+
+      origins.forEach((n, idx) => {
+        const angle = (idx / (origins.length || 1)) * 2 * Math.PI;
+        const r = 210 + (idx % 3) * 50;
+        n.x = width / 2 + Math.cos(angle) * r;
+        n.y = height / 2 + Math.sin(angle) * r;
+        n.radius = 7;
+      });
+    }
+
+    function renderCanvasGraph() {
+      const canvas = document.getElementById('fraudCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.save();
+      ctx.translate(panOffset.x, panOffset.y);
+      ctx.scale(zoomLevel, zoomLevel);
+
+      const nodeMap = new Map();
+      graphNodes.forEach(n => nodeMap.set(n.id, n));
+
+      graphEdges.forEach(e => {
+        const src = nodeMap.get(e.source);
+        const dst = nodeMap.get(e.target);
+        if (src && dst) {
+          ctx.beginPath();
+          ctx.moveTo(src.x, src.y);
+          ctx.lineTo(dst.x, dst.y);
+          if (e.is_fraud || e.risk_score > 60) {
+            ctx.strokeStyle = 'rgba(244, 63, 94, 0.45)';
+            ctx.lineWidth = 2.0;
+          } else {
+            ctx.strokeStyle = 'rgba(75, 85, 99, 0.25)';
+            ctx.lineWidth = 1.0;
+          }
+          ctx.stroke();
+        }
+      });
+
+      graphNodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius, 0, 2 * Math.PI);
+
+        if (n.type === 'DEST_MULE') {
+          ctx.fillStyle = '#F43F5E';
+          ctx.shadowColor = '#F43F5E';
+          ctx.shadowBlur = 10;
+        } else if (n.type === 'DEST_MERCHANT') {
+          ctx.fillStyle = '#10B981';
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.fillStyle = '#3B82F6';
+          ctx.shadowBlur = 0;
+        }
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        if (n.type === 'DEST_MULE' || n.degree > 3) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = '10px monospace';
+          ctx.fillText(n.label, n.x + n.radius + 3, n.y + 3);
+        }
+      });
+
+      ctx.restore();
+    }
+
+    function initCanvasEvents() {
+      const canvas = document.getElementById('fraudCanvas');
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastMousePos = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      canvas.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - lastMousePos.x;
+        const dy = e.clientY - lastMousePos.y;
+        lastMousePos = { x: e.clientX, y: e.clientY };
+        panOffset.x += dx;
+        panOffset.y += dy;
+        renderCanvasGraph();
+      });
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+        zoomLevel = Math.max(0.4, Math.min(3.0, zoomLevel * factor));
+        renderCanvasGraph();
+      });
+    }
+
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/api/v1/metrics');
+        cachedMetrics = await res.json();
+        renderModelCards(cachedMetrics.models);
+        renderCurvesChart(cachedMetrics.curves);
+        renderFeatureImportance(cachedMetrics.feature_importance);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderModelCards(models) {
+      const grid = document.getElementById('model-cards-grid');
+      grid.innerHTML = '';
+
+      const modelOrder = ["XGBoost", "Random Forest", "PyTorch GNN", "Logistic Regression", "Isolation Forest"];
+
+      modelOrder.forEach(name => {
+        const m = models[name];
+        if (!m) return;
+        const card = document.createElement('div');
+        card.className = 'glass-card rounded-2xl p-5 border border-gray-800 space-y-4';
+        
+        let badge = 'bg-emerald-950 text-emerald-400 border-emerald-800';
+        if (name === 'Isolation Forest') badge = 'bg-amber-950 text-amber-400 border-amber-800';
+        else if (name === 'Logistic Regression') badge = 'bg-blue-950 text-blue-400 border-blue-800';
+        else if (name === 'PyTorch GNN') badge = 'bg-purple-950 text-purple-400 border-purple-800';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between pb-2 border-b border-gray-800">
+            <div>
+              <h4 class="text-sm font-bold text-white">${name}</h4>
+              <span class="text-[10px] text-gray-400 font-mono">Test Split Evaluation</span>
+            </div>
+            <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${badge}">
+              ${name.includes('Forest (Un') ? 'Unsupervised' : (name.includes('GNN') ? 'Graph Neural Net' : 'Supervised')}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+              <span class="text-[10px] text-gray-400 block">PR-AUC</span>
+              <span class="font-bold text-white">${m.pr_auc}</span>
+            </div>
+            <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+              <span class="text-[10px] text-gray-400 block">Precision</span>
+              <span class="font-bold text-emerald-400">${m.precision}</span>
+            </div>
+            <div class="p-2 rounded-xl bg-gray-900 border border-gray-800">
+              <span class="text-[10px] text-gray-400 block">Recall</span>
+              <span class="font-bold text-blue-400">${m.recall}</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-gray-900/90 border border-gray-800">
+            <span class="text-[10px] text-gray-400 uppercase font-semibold block mb-2 text-center">Confusion Matrix (Test Sample)</span>
+            <div class="grid grid-cols-2 gap-1.5 text-center text-xs">
+              <div class="p-1.5 rounded bg-emerald-950/40 border border-emerald-900/50">
+                <span class="text-[9px] text-gray-400 block">True Positive (TP)</span>
+                <span class="font-bold text-emerald-400">${m.confusion_matrix.tp}</span>
+              </div>
+              <div class="p-1.5 rounded bg-rose-950/40 border border-rose-900/50">
+                <span class="text-[9px] text-gray-400 block">False Positive (FP)</span>
+                <span class="font-bold text-rose-400">${m.confusion_matrix.fp}</span>
+              </div>
+              <div class="p-1.5 rounded bg-rose-950/40 border border-rose-900/50">
+                <span class="text-[9px] text-gray-400 block">False Negative (FN)</span>
+                <span class="font-bold text-rose-400">${m.confusion_matrix.fn}</span>
+              </div>
+              <div class="p-1.5 rounded bg-gray-800 border border-gray-700">
+                <span class="text-[9px] text-gray-400 block">True Negative (TN)</span>
+                <span class="font-bold text-gray-300">${m.confusion_matrix.tn}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleCurveType(type) {
+      currentCurveType = type;
+      document.getElementById('btn-curve-pr').className = (type === 'pr') ? 'px-2.5 py-1 rounded bg-emerald-600 text-white font-medium' : 'px-2.5 py-1 rounded text-gray-400 hover:text-white font-medium';
+      document.getElementById('btn-curve-roc').className = (type === 'roc') ? 'px-2.5 py-1 rounded bg-emerald-600 text-white font-medium' : 'px-2.5 py-1 rounded text-gray-400 hover:text-white font-medium';
+      if (cachedMetrics) renderCurvesChart(cachedMetrics.curves);
+    }
+
+    function renderCurvesChart(curves) {
+      const ctx = document.getElementById('modelCurvesChart').getContext('2d');
+      if (modelCurvesChart) modelCurvesChart.destroy();
+
+      const colors = {
+        'XGBoost': '#10B981',
+        'Random Forest': '#3B82F6',
+        'PyTorch GNN': '#A855F7',
+        'Logistic Regression': '#F59E0B',
+        'Isolation Forest': '#EC4899'
+      };
+
+      const datasets = [];
+      Object.keys(curves).forEach(name => {
+        const item = curves[name];
+        const dataPts = (currentCurveType === 'pr') 
+          ? item.pr_curve.map(pt => ({ x: pt.recall, y: pt.precision }))
+          : item.roc_curve.map(pt => ({ x: pt.fpr, y: pt.tpr }));
+
+        datasets.push({
+          label: name,
+          data: dataPts,
+          borderColor: colors[name] || '#9CA3AF',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2
+        });
+      });
+
+      modelCurvesChart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'linear',
+              title: { display: true, text: currentCurveType === 'pr' ? 'Recall' : 'False Positive Rate', color: '#9CA3AF' },
+              grid: { color: '#1F2937' },
+              ticks: { color: '#9CA3AF' },
+              min: 0, max: 1
+            },
+            y: {
+              title: { display: true, text: currentCurveType === 'pr' ? 'Precision' : 'True Positive Rate', color: '#9CA3AF' },
+              grid: { color: '#1F2937' },
+              ticks: { color: '#9CA3AF' },
+              min: 0, max: 1.05
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#D1D5DB', boxWidth: 10, font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderFeatureImportance(featList) {
+      const ctx = document.getElementById('featureImportanceChart').getContext('2d');
+      if (featureImportanceChart) featureImportanceChart.destroy();
+
+      const topFeat = featList.slice(0, 8);
+      featureImportanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: topFeat.map(f => f.feature),
+          datasets: [{
+            label: 'SHAP Importance',
+            data: topFeat.map(f => f.importance),
+            backgroundColor: '#8B5CF6',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } },
+            y: { grid: { display: false }, ticks: { color: '#D1D5DB', font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    async function runSyntheticBatch(count = 25) {
+      const container = document.getElementById('batch-progress-container');
+      const bar = document.getElementById('batch-progress-bar');
+      container.classList.remove('hidden');
+      bar.style.width = '30%';
+
+      const resPresets = await fetch('/api/v1/presets');
+      const presets = await resPresets.json();
+      
+      const batchTxs = [];
+      for (let i = 0; i < count; i++) {
+        const base = presets[i % presets.length].data;
+        batchTxs.push({
+          step: Math.floor(Math.random() * 24) + 1,
+          type: base.type,
+          amount: Math.round(base.amount * (0.85 + Math.random() * 0.3) * 100) / 100,
+          nameOrig: `C_BATCH_${1000 + i}`,
+          oldbalanceOrg: base.oldbalanceOrg,
+          newbalanceOrig: base.newbalanceOrig,
+          nameDest: base.nameDest,
+          oldbalanceDest: base.oldbalanceDest,
+          newbalanceDest: base.newbalanceDest
+        });
+      }
+
+      bar.style.width = '70%';
+
+      try {
+        const res = await fetch('/api/v1/predict/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transactions: batchTxs })
+        });
+        const data = await res.json();
+        bar.style.width = '100%';
+        setTimeout(() => container.classList.add('hidden'), 500);
+        renderBatchResults(data);
+        loadStats();
+      } catch (e) {
+        alert("Batch error: " + e);
+      }
+    }
+
+    function renderBatchResults(data) {
+      const wrapper = document.getElementById('batch-results-wrapper');
+      const tbody = document.getElementById('batch-table-body');
+      const chips = document.getElementById('batch-summary-chips');
+      wrapper.classList.remove('hidden');
+      tbody.innerHTML = '';
+
+      chips.innerHTML = `
+        <span class="px-2 py-1 rounded bg-gray-800 text-gray-300 font-bold">Processed: ${data.total_processed}</span>
+        <span class="px-2 py-1 rounded bg-rose-950 text-rose-400 border border-rose-800 font-bold">Flagged: ${data.flagged_fraud_count} (${data.fraud_rate_pct}%)</span>
+      `;
+
+      data.predictions.forEach(p => {
+        const tx = p.transaction;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-800/40 transition';
+        const topDriver = (p.explainability.narrative && p.explainability.narrative[0]) || 'Normal';
+        
+        tr.innerHTML = `
+          <td class="py-2.5 px-4 font-bold text-gray-300">${tx.type}</td>
+          <td class="py-2.5 px-4 font-bold text-white">$${Number(tx.amount).toLocaleString()}</td>
+          <td class="py-2.5 px-4 font-mono text-gray-400">${tx.nameOrig}</td>
+          <td class="py-2.5 px-4 font-mono text-gray-400">${tx.nameDest}</td>
+          <td class="py-2.5 px-4 font-bold ${p.risk_score >= 60 ? 'text-rose-400' : 'text-emerald-400'}">${p.risk_score}%</td>
+          <td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.risk_score >= 60 ? 'bg-rose-950 text-rose-400' : 'bg-emerald-950 text-emerald-400'}">${p.risk_tier}</span></td>
+          <td class="py-2.5 px-4 text-gray-300">${p.recommendation}</td>
+          <td class="py-2.5 px-4 text-gray-400 truncate max-w-xs">${topDriver}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function downloadSampleCsv() {
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        "step,type,amount,nameOrig,oldbalanceOrg,newbalanceOrig,nameDest,oldbalanceDest,newbalanceDest\n" +
+        "12,TRANSFER,185000.00,VICTIM_4021,185000.00,0.00,MULE_004,0.00,0.00\n" +
+        "14,PAYMENT,42.50,C10482,3450.00,3407.50,M_HUB_04,45000.00,45042.50\n" +
+        "18,TRANSFER,9850.00,C55120,15000.00,5150.00,C44910,500.00,10350.00\n" +
+        "3,CASH_OUT,76500.00,VICTIM_8829,76500.00,0.00,MULE_004,12000.00,0.00\n";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "sentinelai_sample_batch.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function handleCsvUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/v1/predict/upload-csv', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        renderBatchResults(data);
+        loadStats();
+      } catch (err) {
+        alert("Upload error: " + err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{
+  "Logistic Regression": {
+    "precision": 0.4367,
+    "recall": 0.8917,
+    "f1_score": 0.5863,
+    "pr_auc": 0.8421,
+    "roc_auc": 0.9893,
+    "specificity": 0.9765,
+    "confusion_matrix": {
+      "tp": 107,
+      "fp": 138,
+      "tn": 5742,
+      "fn": 13
+    }
+  },
+  "Random Forest": {
+    "precision": 0.9916,
+    "recall": 0.9833,
+    "f1_score": 0.9874,
+    "pr_auc": 0.9993,
+    "roc_auc": 1.0,
+    "specificity": 0.9998,
+    "confusion_matrix": {
+      "tp": 118,
+      "fp": 1,
+      "tn": 5879,
+      "fn": 2
+    }
+  },
+  "XGBoost": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "pr_auc": 1.0,
+    "roc_auc": 1.0,
+    "specificity": 1.0,
+    "confusion_matrix": {
+      "tp": 120,
+      "fp": 0,
+      "tn": 5880,
+      "fn": 0
+    }
+  },
+  "Isolation Forest": {
+    "precision": 0.2581,
+    "recall": 0.2667,
+    "f1_score": 0.2623,
+    "pr_auc": 0.1876,
+    "roc_auc": 0.8631,
+    "specificity": 0.9844,
+    "confusion_matrix": {
+      "tp": 32,
+      "fp": 92,
+      "tn": 5788,
+      "fn": 88
+    }
+  },
+  "PyTorch GNN": {
+    "precision": 0.8866,
+    "recall": 0.7167,
+    "f1_score": 0.7926,
+    "pr_auc": 0.82,
+    "roc_auc": 0.9652,
+    "specificity": 0.9981,
+    "confusion_matrix": {
+      "tp": 86,
+      "fp": 11,
+      "tn": 5869,
+      "fn": 34
+    }
+  }
+}
